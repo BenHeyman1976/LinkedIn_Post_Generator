@@ -217,6 +217,98 @@
         .error-message.show {
             display: block;
         }
+        .image-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+        .generate-image-btn {
+            width: 100%;
+            padding: 12px;
+            background: #10a37f;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+        .generate-image-btn:hover {
+            background: #0d8c6d;
+        }
+        .generate-image-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .image-preview {
+            margin-top: 15px;
+            display: none;
+            text-align: center;
+        }
+        .image-preview.show {
+            display: block;
+        }
+        .image-preview img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .image-caption {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #666;
+            font-style: italic;
+        }
+        .help-link {
+            color: #0a66c2;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        .help-link:hover {
+            text-decoration: underline;
+        }
+        .ad-placeholder {
+            background: #f0f0f0;
+            border: 2px dashed #ccc;
+            padding: 60px 20px;
+            text-align: center;
+            margin: 20px 0;
+            border-radius: 8px;
+            color: #999;
+            font-size: 14px;
+        }
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        .share-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        .share-btn:hover {
+            transform: scale(1.05);
+        }
+        .share-btn.twitter {
+            background: #1da1f2;
+            color: white;
+        }
+        .share-btn.reddit {
+            background: #ff4500;
+            color: white;
+        }
+        .share-btn.copy {
+            background: #666;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -224,8 +316,14 @@
         <div class="header">
             <h1>🎭 LinkedIn Wisdom Generator</h1>
             <p>Turn any mundane life event into profound corporate insight</p>
+            <p style="font-size: 12px; margin-top: 8px; opacity: 0.8;">For entertainment purposes only. Please don't actually post these.</p>
         </div>
         <div class="content">
+            <!-- Top Ad Spot -->
+            <div class="ad-placeholder">
+                📢 Ad Space - Google AdSense goes here
+            </div>
+
             <div class="form-group">
                 <label for="activity">What mundane thing did you do?</label>
                 <select id="activity">
@@ -316,6 +414,27 @@
             <div class="output" id="output">
                 <div class="post-text" id="postText"></div>
                 <button class="copy-btn" onclick="copyPost()">Copy to Clipboard</button>
+                
+                <div class="share-buttons">
+                    <button class="share-btn twitter" onclick="shareTwitter()">🐦 Share on Twitter</button>
+                    <button class="share-btn reddit" onclick="shareReddit()">🤖 Share on Reddit</button>
+                </div>
+                
+                <div class="image-section">
+                    <button class="generate-image-btn" onclick="generateImage()" id="generateImageBtn">
+                        🎨 Generate Inspirational Image
+                        <span class="loading" id="imageLoading"></span>
+                    </button>
+                    <div class="image-preview" id="imagePreview">
+                        <img id="generatedImage" alt="Generated LinkedIn post image">
+                        <div class="image-caption">Peak LinkedIn aesthetics achieved ✨</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Ad Spot -->
+            <div class="ad-placeholder" style="margin-top: 30px;">
+                📢 Ad Space - Google AdSense goes here
             </div>
         </div>
         <div class="footer">
@@ -594,6 +713,245 @@ Agree? Thoughts? ${intensityVal > 6 ? '👇' : ''}
                     btn.textContent = originalText;
                 }, 2000);
             });
+        }
+
+        async function generateImage() {
+            const activity = document.getElementById('activity').value;
+            const buzzword = document.getElementById('buzzword').value;
+            const postText = document.getElementById('postText').textContent;
+
+            if (!activity || !buzzword) {
+                showError('Generate a post first before creating an image!');
+                return;
+            }
+
+            hideError();
+            setImageLoading(true);
+
+            try {
+                // Create a prompt for image generation that captures LinkedIn aesthetic
+                const imagePrompt = await createImagePrompt(activity, buzzword, selectedTone);
+                
+                // Generate image using Claude's vision capabilities via a canvas/SVG approach
+                const imageDataUrl = await generateLinkedInImage(imagePrompt, activity, buzzword);
+                
+                document.getElementById('generatedImage').src = imageDataUrl;
+                document.getElementById('imagePreview').classList.add('show');
+            } catch (error) {
+                showError('Failed to generate image. Please try again.');
+                console.error(error);
+            } finally {
+                setImageLoading(false);
+            }
+        }
+
+        async function createImagePrompt(activity, buzzword, tone) {
+            const activityVisuals = {
+                'pregnancy': 'a minimalist illustration of a pregnant silhouette with corporate icons floating around',
+                'parkrun': 'a stylized runner on a track with business charts in the background',
+                'grocery': 'a shopping cart filled with lightbulbs and gears',
+                'netflix': 'a TV screen showing graphs and pie charts',
+                'dentist': 'a dental chair transforming into an office chair',
+                'flat-tire': 'a tire with motivational arrows pointing upward',
+                'ikea': 'furniture pieces assembling themselves into a corporate ladder',
+                'dog-walk': 'a dog on a leash leading towards a glowing briefcase',
+                'coffee': 'a coffee cup with steam forming into productivity icons',
+                'gym': 'dumbbells transforming into laptop and phone',
+                'plants': 'a wilted plant next to thriving corporate growth chart',
+                'queue': 'people in line transforming into workflow diagram',
+                'wifi': 'WiFi signal bars breaking and reforming into steps',
+                'haircut': 'scissors cutting away old ideas, revealing new ones',
+                'uber': 'a car driving on a road made of upward arrows',
+                'parking': 'a parking space with a lightbulb parked in it',
+                'laundry': 'clothes spinning in washer forming a cycle diagram',
+                'pizza': 'pizza slices arranged like a pie chart',
+                'lost-keys': 'keys transforming into solution icons',
+                'spam-email': 'emails flying into a trash bin shaped like a filter funnel'
+            };
+
+            return activityVisuals[activity] || 'abstract corporate imagery with upward arrows';
+        }
+
+        async function generateImage() {
+            const activity = document.getElementById('activity').value;
+            const buzzword = document.getElementById('buzzword').value;
+
+            if (!activity || !buzzword) {
+                showError('Generate a post first before creating an image!');
+                return;
+            }
+
+            hideError();
+            setImageLoading(true);
+
+            // Simulate a small delay to make it feel like "AI" is working
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            try {
+                const imageDataUrl = generateEnhancedImage(activity, buzzword, selectedTone);
+                document.getElementById('generatedImage').src = imageDataUrl;
+                document.getElementById('imagePreview').classList.add('show');
+            } catch (error) {
+                showError('Failed to generate image. Please try again.');
+                console.error(error);
+            } finally {
+                setImageLoading(false);
+            }
+        }
+
+        function generateEnhancedImage(activity, buzzword, tone) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1200;
+            canvas.height = 1200; // Square for better social sharing
+            const ctx = canvas.getContext('2d');
+
+            // LinkedIn blue gradient background with variation
+            const gradients = {
+                'humble-brag': ['#0a66c2', '#004182'],
+                'controversial': ['#c41e3a', '#8b0000'],
+                'inspirational': ['#ffd700', '#ff8c00'],
+                'vulnerable': ['#6a5acd', '#483d8b']
+            };
+            
+            const colors = gradients[tone] || gradients['humble-brag'];
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, colors[0]);
+            gradient.addColorStop(1, colors[1]);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Add decorative circles
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+            for (let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                ctx.arc(
+                    Math.random() * canvas.width,
+                    Math.random() * canvas.height,
+                    100 + Math.random() * 150,
+                    0,
+                    Math.PI * 2
+                );
+                ctx.fill();
+            }
+
+            // Add activity emoji - LARGE
+            const activityEmojis = {
+                'pregnancy': '🤰',
+                'parkrun': '🏃',
+                'grocery': '🛒',
+                'netflix': '📺',
+                'dentist': '🦷',
+                'flat-tire': '🚗',
+                'ikea': '🔧',
+                'dog-walk': '🐕',
+                'coffee': '☕',
+                'gym': '💪',
+                'plants': '🌱',
+                'queue': '👥',
+                'wifi': '📡',
+                'haircut': '✂️',
+                'uber': '🚕',
+                'parking': '🅿️',
+                'laundry': '👕',
+                'pizza': '🍕',
+                'lost-keys': '🔑',
+                'spam-email': '📧'
+            };
+
+            ctx.font = 'bold 350px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fillText(activityEmojis[activity] || '💡', canvas.width / 2, canvas.height / 2);
+
+            // Add inspiring quote-style text at top
+            const toneTexts = {
+                'humble-brag': "I'm humbled to share...",
+                'controversial': "Unpopular opinion:",
+                'inspirational': "This changed everything.",
+                'vulnerable': "I failed. Here's why..."
+            };
+
+            ctx.font = 'bold 45px Arial';
+            ctx.fillStyle = 'white';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+            ctx.shadowBlur = 15;
+            ctx.fillText(toneTexts[tone] || toneTexts['humble-brag'], canvas.width / 2, 120);
+
+            // Add buzzword at bottom
+            const buzzwordNames = {
+                'responsible-ai': 'RESPONSIBLE AI',
+                'agile': 'AGILE METHODOLOGY',
+                'leadership': 'LEADERSHIP',
+                'innovation': 'INNOVATION',
+                'growth-mindset': 'GROWTH MINDSET',
+                'synergy': 'SYNERGY',
+                'disruption': 'DISRUPTION',
+                'pivot': 'PIVOTING',
+                'stakeholder': 'STAKEHOLDER MGMT',
+                'scaling': 'SCALING',
+                'employee-engagement': 'EMPLOYEE ENGAGEMENT',
+                'digital-transformation': 'DIGITAL TRANSFORMATION',
+                'thought-leadership': 'THOUGHT LEADERSHIP',
+                'change-management': 'CHANGE MANAGEMENT',
+                'diversity': 'DIVERSITY & INCLUSION',
+                'customer-centric': 'CUSTOMER-CENTRICITY',
+                'data-driven': 'DATA-DRIVEN',
+                'work-life-balance': 'WORK-LIFE BALANCE'
+            };
+
+            ctx.font = 'bold 52px Arial';
+            const buzzText = buzzwordNames[buzzword] || buzzword.toUpperCase();
+            ctx.fillText(buzzText, canvas.width / 2, canvas.height - 120);
+
+            // Add decorative arrows and sparkles
+            ctx.font = 'bold 80px Arial';
+            ctx.fillText('→', 150, canvas.height / 2);
+            ctx.fillText('→', canvas.width - 150, canvas.height / 2);
+            ctx.fillText('✨', canvas.width / 2 - 400, 250);
+            ctx.fillText('✨', canvas.width / 2 + 400, 250);
+            ctx.fillText('💡', canvas.width / 2 - 400, canvas.height - 250);
+            ctx.fillText('🚀', canvas.width / 2 + 400, canvas.height - 250);
+
+            return canvas.toDataURL('image/png');
+        }
+
+        function setImageLoading(isLoading) {
+            const btn = document.getElementById('generateImageBtn');
+            const loading = document.getElementById('imageLoading');
+            
+            if (isLoading) {
+                btn.disabled = true;
+                loading.innerHTML = '<span class="spinner"></span>';
+            } else {
+                btn.disabled = false;
+                loading.innerHTML = '';
+            }
+        }
+
+        function setImageLoading(isLoading) {
+            const btn = document.getElementById('generateImageBtn');
+            const loading = document.getElementById('imageLoading');
+            
+            if (isLoading) {
+                btn.disabled = true;
+                loading.innerHTML = '<span class="spinner"></span>';
+            } else {
+                btn.disabled = false;
+                loading.innerHTML = '';
+            }
+        }
+
+        function shareTwitter() {
+            const text = "I just generated the most LinkedIn post ever 😂 Check out this LinkedIn Wisdom Generator:";
+            const url = window.location.href;
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+        }
+
+        function shareReddit() {
+            const title = "LinkedIn Wisdom Generator - Turn mundane life events into profound corporate insights";
+            const url = window.location.href;
+            window.open(`https://reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`, '_blank');
         }
     </script>
 </body>
