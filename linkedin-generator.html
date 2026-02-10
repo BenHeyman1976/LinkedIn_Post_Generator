@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Wisdom Post Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: #0a66c2;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #0a66c2;
+        }
+        .slider-container {
+            margin-top: 10px;
+        }
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0a66c2;
+            cursor: pointer;
+        }
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0a66c2;
+            cursor: pointer;
+            border: none;
+        }
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+        .tone-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .tone-option {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .tone-option:hover {
+            border-color: #0a66c2;
+            background: #f3f6f8;
+        }
+        .tone-option.selected {
+            border-color: #0a66c2;
+            background: #0a66c2;
+            color: white;
+        }
+        .generate-btn {
+            width: 100%;
+            padding: 14px;
+            background: #0a66c2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            position: relative;
+        }
+        .generate-btn:hover {
+            background: #084d92;
+        }
+        .generate-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .loading {
+            display: none;
+            margin-left: 10px;
+        }
+        .loading.active {
+            display: inline-block;
+        }
+        .output {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f3f6f8;
+            border-radius: 8px;
+            border-left: 4px solid #0a66c2;
+            display: none;
+        }
+        .output.show {
+            display: block;
+        }
+        .post-text {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #333;
+            white-space: pre-wrap;
+        }
+        .copy-btn {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #0a66c2;
+            color: #0a66c2;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .copy-btn:hover {
+            background: #0a66c2;
+            color: white;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 13px;
+            font-style: italic;
+        }
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #0a66c2;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error-message {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            display: none;
+        }
+        .error-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎭 LinkedIn Wisdom Generator</h1>
+            <p>Turn any mundane life event into profound corporate insight</p>
+        </div>
+        <div class="content">
+            <div class="form-group">
+                <label for="activity">What mundane thing did you do?</label>
+                <select id="activity">
+                    <option value="">-- Select an activity --</option>
+                    <option value="pregnancy">My pregnancy journey</option>
+                    <option value="parkrun">My weekly parkrun</option>
+                    <option value="grocery">Shopping at Tesco</option>
+                    <option value="netflix">Binge-watching Netflix</option>
+                    <option value="dentist">Going to the dentist</option>
+                    <option value="flat-tire">Getting a flat tire</option>
+                    <option value="ikea">Assembling IKEA furniture</option>
+                    <option value="dog-walk">Walking my dog</option>
+                    <option value="coffee">Making my morning coffee</option>
+                    <option value="gym">Cancelling my gym membership</option>
+                    <option value="plants">Killing my houseplant</option>
+                    <option value="queue">Standing in a queue</option>
+                    <option value="wifi">Losing my WiFi connection</option>
+                    <option value="haircut">Getting a haircut</option>
+                    <option value="uber">Taking an Uber</option>
+                    <option value="parking">Finding a parking space</option>
+                    <option value="laundry">Doing laundry</option>
+                    <option value="pizza">Ordering pizza</option>
+                    <option value="lost-keys">Losing my keys</option>
+                    <option value="spam-email">Deleting spam email</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="buzzword">What corporate concept are we forcing this into?</label>
+                <select id="buzzword">
+                    <option value="">-- Select corporate wisdom --</option>
+                    <option value="responsible-ai">Responsible AI</option>
+                    <option value="agile">Agile methodology</option>
+                    <option value="leadership">Leadership</option>
+                    <option value="innovation">Innovation</option>
+                    <option value="growth-mindset">Growth mindset</option>
+                    <option value="synergy">Synergy</option>
+                    <option value="disruption">Disruption</option>
+                    <option value="pivot">Pivoting</option>
+                    <option value="stakeholder">Stakeholder management</option>
+                    <option value="scaling">Scaling</option>
+                    <option value="employee-engagement">Employee engagement</option>
+                    <option value="digital-transformation">Digital transformation</option>
+                    <option value="thought-leadership">Thought leadership</option>
+                    <option value="change-management">Change management</option>
+                    <option value="diversity">Diversity and inclusion</option>
+                    <option value="customer-centric">Customer-centricity</option>
+                    <option value="data-driven">Data-driven decisions</option>
+                    <option value="work-life-balance">Work-life balance</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="tone">Select your tone</label>
+                <div class="tone-options">
+                    <div class="tone-option selected" data-tone="humble-brag" onclick="selectTone('humble-brag')">
+                        😇 Humble Brag<br><small>"Not to brag, but..."</small>
+                    </div>
+                    <div class="tone-option" data-tone="controversial" onclick="selectTone('controversial')">
+                        🔥 Controversial<br><small>"Unpopular opinion..."</small>
+                    </div>
+                    <div class="tone-option" data-tone="inspirational" onclick="selectTone('inspirational')">
+                        ✨ Inspirational<br><small>"This changed my life"</small>
+                    </div>
+                    <div class="tone-option" data-tone="vulnerable" onclick="selectTone('vulnerable')">
+                        💔 Vulnerable<br><small>"I failed, here's why..."</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="intensity">LinkedIn Intensity Level</label>
+                <div class="slider-container">
+                    <input type="range" min="1" max="10" value="7" class="slider" id="intensity">
+                    <div class="slider-labels">
+                        <span>Mild cringe</span>
+                        <span>Peak LinkedIn</span>
+                    </div>
+                </div>
+            </div>
+
+            <button class="generate-btn" onclick="generatePost()" id="generateBtn">
+                Generate LinkedIn Wisdom 🚀
+                <span class="loading" id="loading"><span class="spinner"></span></span>
+            </button>
+
+            <div class="error-message" id="errorMessage"></div>
+
+            <div class="output" id="output">
+                <div class="post-text" id="postText"></div>
+                <button class="copy-btn" onclick="copyPost()">Copy to Clipboard</button>
+            </div>
+        </div>
+        <div class="footer">
+            "Agree? Thoughts? Let's discuss in the comments! 👇"
+        </div>
+    </div>
+    <script>
+        let selectedTone = 'humble-brag';
+
+        function selectTone(tone) {
+            selectedTone = tone;
+            document.querySelectorAll('.tone-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            document.querySelector(`[data-tone="${tone}"]`).classList.add('selected');
+        }
+
+        async function generatePost() {
+            const activity = document.getElementById('activity').value;
+            const buzzword = document.getElementById('buzzword').value;
+            const intensity = document.getElementById('intensity').value;
+            
+            if (!activity || !buzzword) {
+                showError('Please select both an activity and a corporate concept!');
+                return;
+            }
+
+            hideError();
+            setLoading(true);
+
+            try {
+                const post = await generateAIPost(activity, buzzword, selectedTone, intensity);
+                document.getElementById('postText').textContent = post;
+                document.getElementById('output').classList.add('show');
+                document.getElementById('output').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } catch (error) {
+                showError('Failed to generate post. Please try again.');
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        async function generateAIPost(activity, buzzword, tone, intensity) {
+            const activityNames = {
+                'pregnancy': 'my pregnancy journey',
+                'parkrun': 'my weekly parkrun',
+                'grocery': 'shopping at Tesco',
+                'netflix': 'binge-watching Netflix',
+                'dentist': 'going to the dentist',
+                'flat-tire': 'getting a flat tire',
+                'ikea': 'assembling IKEA furniture',
+                'dog-walk': 'walking my dog',
+                'coffee': 'making my morning coffee',
+                'gym': 'cancelling my gym membership',
+                'plants': 'killing my houseplant',
+                'queue': 'standing in a queue',
+                'wifi': 'losing my WiFi connection',
+                'haircut': 'getting a haircut',
+                'uber': 'taking an Uber',
+                'parking': 'finding a parking space',
+                'laundry': 'doing laundry',
+                'pizza': 'ordering pizza',
+                'lost-keys': 'losing my keys',
+                'spam-email': 'deleting spam email'
+            };
+
+            const buzzwordNames = {
+                'responsible-ai': 'Responsible AI',
+                'agile': 'Agile methodology',
+                'leadership': 'Leadership',
+                'innovation': 'Innovation',
+                'growth-mindset': 'Growth Mindset',
+                'synergy': 'Synergy',
+                'disruption': 'Disruption',
+                'pivot': 'Pivoting',
+                'stakeholder': 'Stakeholder Management',
+                'scaling': 'Scaling',
+                'employee-engagement': 'Employee Engagement',
+                'digital-transformation': 'Digital Transformation',
+                'thought-leadership': 'Thought Leadership',
+                'change-management': 'Change Management',
+                'diversity': 'Diversity & Inclusion',
+                'customer-centric': 'Customer-Centricity',
+                'data-driven': 'Data-Driven Decision Making',
+                'work-life-balance': 'Work-Life Balance'
+            };
+
+            const toneInstructions = {
+                'humble-brag': 'Write in a humble-bragging tone. Act like you\'re being modest but clearly showing off. Use phrases like "I\'m no expert, but..." before giving expert advice, or "Just a small win..." before describing something impressive.',
+                'controversial': 'Write in a controversial, hot-take tone. Start with "Unpopular opinion:" or "I\'m going to say what everyone\'s thinking:". Be provocative and challenge conventional wisdom.',
+                'inspirational': 'Write in an overly inspirational, motivational speaker tone. Use dramatic statements about transformation, growth, and life-changing revelations. Be earnest and emotional.',
+                'vulnerable': 'Write in a vulnerable, confessional tone. Share a "failure" or struggle, but make sure it ends with a valuable lesson. Use phrases like "I\'m not proud of this, but..." or "Here\'s what I learned the hard way..."'
+            };
+
+            const intensityLevel = parseInt(intensity);
+            let intensityInstruction = '';
+            
+            if (intensityLevel <= 3) {
+                intensityInstruction = 'Keep it relatively subtle and brief. Use minimal emojis (1-2 max). Keep the connection somewhat reasonable.';
+            } else if (intensityLevel <= 6) {
+                intensityInstruction = 'Make it moderately LinkedIn-y. Use some emojis (3-5), dramatic line breaks, and a clear but forced connection.';
+            } else {
+                intensityInstruction = 'Go ALL OUT. Maximum LinkedIn energy. Lots of emojis, dramatic single-sentence paragraphs, numbered lists with arrows/checkmarks, multiple hashtags, and an absurdly forced connection between the mundane activity and corporate concept.';
+            }
+
+            const systemPrompt = `You are a satirical LinkedIn post generator. Create over-the-top LinkedIn posts that parody typical "thought leadership" content by connecting mundane life events to corporate buzzwords.
+
+Key elements of authentic LinkedIn cringe:
+- Opening hook with a mundane event
+- Dramatic revelation: "And it got me thinking about [corporate concept]"
+- Forced parallels between the event and business concept
+- Numbered lists or bullet points with arrows/checkmarks
+- Single-sentence paragraphs for dramatic effect
+- Strategic use of emojis
+- Humble brags disguised as lessons
+- Ending with engagement bait like "Agree? Thoughts?"
+- Corporate hashtags
+
+${toneInstructions[tone]}
+
+${intensityInstruction}
+
+The post should feel authentically cringe-worthy, like something you'd actually see on LinkedIn. Make the connection between the activity and concept as tenuous and forced as possible while maintaining the earnest tone of someone who genuinely thinks they're dropping wisdom.`;
+
+            const userPrompt = `Generate a LinkedIn post about ${activityNames[activity]} and connect it to ${buzzwordNames[buzzword]}. Make it feel authentically LinkedIn while being satirically over-the-top.`;
+
+            try {
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 1000,
+                        system: systemPrompt,
+                        messages: [
+                            { role: 'user', content: userPrompt }
+                        ]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+
+                const data = await response.json();
+                const post = data.content
+                    .filter(item => item.type === 'text')
+                    .map(item => item.text)
+                    .join('\n');
+
+                return post || 'Failed to generate post. Please try again.';
+            } catch (error) {
+                console.error('Error calling API:', error);
+                // Fallback to template-based generation
+                return generateTemplatePost(activity, buzzword, tone, intensity);
+            }
+        }
+
+        function generateTemplatePost(activity, buzzword, tone, intensity) {
+            const activityNames = {
+                'pregnancy': 'pregnancy journey',
+                'parkrun': 'parkrun',
+                'grocery': 'grocery shopping',
+                'netflix': 'Netflix binge',
+                'dentist': 'dentist appointment',
+                'flat-tire': 'flat tire',
+                'ikea': 'IKEA assembly',
+                'dog-walk': 'dog walk',
+                'coffee': 'morning coffee ritual',
+                'gym': 'gym membership cancellation',
+                'plants': 'houseplant catastrophe',
+                'queue': 'queue experience',
+                'wifi': 'WiFi outage',
+                'haircut': 'haircut',
+                'uber': 'Uber ride',
+                'parking': 'parking space hunt',
+                'laundry': 'laundry day',
+                'pizza': 'pizza order',
+                'lost-keys': 'lost keys incident',
+                'spam-email': 'spam email purge'
+            };
+
+            const buzzwordNames = {
+                'responsible-ai': 'Responsible AI',
+                'agile': 'Agile',
+                'leadership': 'Leadership',
+                'innovation': 'Innovation',
+                'growth-mindset': 'Growth Mindset',
+                'synergy': 'Synergy',
+                'disruption': 'Disruption',
+                'pivot': 'Pivoting',
+                'stakeholder': 'Stakeholder Management',
+                'scaling': 'Scaling',
+                'employee-engagement': 'Employee Engagement',
+                'digital-transformation': 'Digital Transformation',
+                'thought-leadership': 'Thought Leadership',
+                'change-management': 'Change Management',
+                'diversity': 'Diversity & Inclusion',
+                'customer-centric': 'Customer-Centricity',
+                'data-driven': 'Data-Driven Decisions',
+                'work-life-balance': 'Work-Life Balance'
+            };
+
+            const intensityVal = parseInt(intensity);
+            const emoji = intensityVal > 6 ? '🚀✨💡🔥' : intensityVal > 3 ? '💡' : '';
+            const lineBreaks = intensityVal > 6 ? '\n\n' : '\n';
+            const listStyle = intensityVal > 6 ? '→' : '•';
+
+            let opening = '';
+            if (tone === 'humble-brag') {
+                opening = `I'm no expert, but ${activityNames[activity]} taught me something profound.${lineBreaks}`;
+            } else if (tone === 'controversial') {
+                opening = `Unpopular opinion:${lineBreaks}Your ${activityNames[activity]} says more about your ${buzzwordNames[buzzword]} than any MBA ever could.${lineBreaks}`;
+            } else if (tone === 'inspirational') {
+                opening = `${activityNames[activity]} changed my life.${lineBreaks}Not kidding.${lineBreaks}`;
+            } else {
+                opening = `I failed at ${activityNames[activity]} yesterday.${lineBreaks}Here's what it taught me about ${buzzwordNames[buzzword]}:${lineBreaks}`;
+            }
+
+            return `${opening}And it got me thinking about ${buzzwordNames[buzzword]}.
+
+${listStyle} Lesson 1: Things don't always go as planned
+${listStyle} Lesson 2: Adaptation is key
+${listStyle} Lesson 3: Communication matters
+${listStyle} Lesson 4: Small wins compound
+${listStyle} Lesson 5: Trust the process
+
+The parallel is uncanny.
+
+This seemingly mundane experience reminded me that ${buzzwordNames[buzzword]} isn't just a buzzword.
+
+It's a mindset.
+It's a way of life.
+It's showing up every day.
+
+${emoji}
+
+Agree? Thoughts? ${intensityVal > 6 ? '👇' : ''}
+
+#${buzzword.replace(/-/g, '')} #Leadership #MondayMotivation #ThoughtLeadership #CareerGrowth`;
+        }
+
+        function setLoading(isLoading) {
+            const btn = document.getElementById('generateBtn');
+            const loading = document.getElementById('loading');
+            
+            if (isLoading) {
+                btn.disabled = true;
+                loading.classList.add('active');
+            } else {
+                btn.disabled = false;
+                loading.classList.remove('active');
+            }
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').classList.remove('show');
+        }
+
+        function copyPost() {
+            const postText = document.getElementById('postText').textContent;
+            navigator.clipboard.writeText(postText).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = '✓ Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
