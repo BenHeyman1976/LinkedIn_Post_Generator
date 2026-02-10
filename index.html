@@ -3,7 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkedIn Wisdom Post Generator</title>
+    <title>LinkedIn Wisdom Generator - Turn Mundane Life Events into Corporate Insights</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Free LinkedIn post generator that turns everyday activities into profound corporate wisdom. Create hilarious LinkedIn thought leadership posts. Parody LinkedIn influencer culture with AI-generated cringe content.">
+    <meta name="keywords" content="linkedin post generator, linkedin parody, corporate jargon generator, thought leadership, linkedin cringe, linkedin influencer, business buzzwords, satire, humor">
+    <meta name="author" content="LinkedIn Wisdom Generator">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://linked-in-cringe.com/">
+    <meta property="og:title" content="LinkedIn Wisdom Generator - Turn Mundane Life Into Corporate Gold">
+    <meta property="og:description" content="Generate hilarious LinkedIn thought leadership posts. Turn your grocery shopping into profound business insights. Free LinkedIn post parody generator.">
+    <meta property="og:image" content="https://linked-in-cringe.com/preview.png">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://linked-in-cringe.com/">
+    <meta property="twitter:title" content="LinkedIn Wisdom Generator - Corporate Cringe Creator">
+    <meta property="twitter:description" content="Turn mundane life events into profound LinkedIn thought leadership. Free AI-powered parody generator.">
+    <meta property="twitter:image" content="https://linked-in-cringe.com/preview.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://linked-in-cringe.com/">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "LinkedIn Wisdom Generator",
+      "url": "https://linked-in-cringe.com/",
+      "description": "Free tool to generate satirical LinkedIn thought leadership posts. Turn mundane life events into profound corporate insights.",
+      "applicationCategory": "EntertainmentApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "screenshot": "https://linked-in-cringe.com/preview.png",
+      "operatingSystem": "Web Browser",
+      "keywords": "linkedin generator, corporate humor, satire, linkedin parody, thought leadership"
+    }
+    </script>
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8040646799579709" crossorigin="anonymous"></script>
+    
     <style>
         * {
             margin: 0;
@@ -438,7 +485,13 @@
             </div>
         </div>
         <div class="footer">
-            "Agree? Thoughts? Let's discuss in the comments! 👇"
+            <p style="margin-bottom: 10px;">"Agree? Thoughts? Let's discuss in the comments! 👇"</p>
+            <p style="font-size: 11px; opacity: 0.7; line-height: 1.5;">
+                Free LinkedIn post generator for creating satirical thought leadership content. 
+                Turn everyday activities into profound corporate insights. 
+                Perfect for mocking LinkedIn influencer culture and corporate jargon.
+                Generate AI-powered parody posts instantly.
+            </p>
         </div>
     </div>
     <script>
@@ -524,7 +577,7 @@
             };
 
             const toneInstructions = {
-                'humble-brag': 'Write in a humble-bragging tone. Act like you\'re being modest but clearly showing off. Use phrases like "I\'m no expert, but..." before giving expert advice, or "Just a small win..." before describing something impressive.',
+                'humble-brag': 'Write in an EXTREMELY humble-bragging tone with maximum cringe. Pretend to be modest while obviously showing off. Mix these patterns: (1) "I\'m no expert, but..." then give very specific expert advice, (2) "Just a small thing..." before describing something impressive, (3) "I don\'t usually share this, but..." before oversharing an achievement, (4) "Not to brag, but..." then immediately brag, (5) "I was humbled when..." before describing how amazing you are, (6) Mention impressive credentials/achievements while pretending they\'re not a big deal. Make it PAINFULLY obvious they\'re showing off while pretending not to. Vary the specific phrases - don\'t always use the same opening.',
                 'controversial': 'Write in a controversial, hot-take tone. Start with "Unpopular opinion:" or "I\'m going to say what everyone\'s thinking:". Be provocative and challenge conventional wisdom.',
                 'inspirational': 'Write in an overly inspirational, motivational speaker tone. Use dramatic statements about transformation, growth, and life-changing revelations. Be earnest and emotional.',
                 'vulnerable': 'Write in a vulnerable, confessional tone. Share a "failure" or struggle, but make sure it ends with a valuable lesson. Use phrases like "I\'m not proud of this, but..." or "Here\'s what I learned the hard way..."'
@@ -648,7 +701,14 @@ The post should feel authentically cringe-worthy, like something you'd actually 
 
             let opening = '';
             if (tone === 'humble-brag') {
-                opening = `I'm no expert, but ${activityNames[activity]} taught me something profound.${lineBreaks}`;
+                const humbleBragOpeners = [
+                    `Not to brag, but ${activityNames[activity]} taught me something profound about ${buzzwordNames[buzzword]}.${lineBreaks}I'm just a simple person who happened to notice...${lineBreaks}`,
+                    `I don't usually share this kind of thing, but...${lineBreaks}${activityNames[activity]} completely changed how I think about ${buzzwordNames[buzzword]}.${lineBreaks}(I know, I know, sounds dramatic)${lineBreaks}`,
+                    `I'm no expert in ${buzzwordNames[buzzword]}.${lineBreaks}Just someone who learned everything the hard way through ${activityNames[activity]}.${lineBreaks}But here's what I discovered:${lineBreaks}`,
+                    `Just a small observation from ${activityNames[activity]}...${lineBreaks}(That completely revolutionized my understanding of ${buzzwordNames[buzzword]})${lineBreaks}`,
+                    `I was humbled by ${activityNames[activity]} yesterday.${lineBreaks}It reminded me why I've spent 10+ years mastering ${buzzwordNames[buzzword]}.${lineBreaks}Not everyone gets this, but...${lineBreaks}`
+                ];
+                opening = humbleBragOpeners[Math.floor(Math.random() * humbleBragOpeners.length)];
             } else if (tone === 'controversial') {
                 opening = `Unpopular opinion:${lineBreaks}Your ${activityNames[activity]} says more about your ${buzzwordNames[buzzword]} than any MBA ever could.${lineBreaks}`;
             } else if (tone === 'inspirational') {
